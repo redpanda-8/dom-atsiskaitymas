@@ -5,7 +5,7 @@
     body.appendChild(container);
     
 
-    // uzduotis 1 - apsirasau inputs ir button tagus
+    // uzduotis 1 - apsirasau ir sukuriu inputs ir button tagus
     const input = document.createElement("input");
     const select = document.createElement("select");
     const optionLow = document.createElement("option");
@@ -40,7 +40,7 @@
 
 
     function uzduotisTrecia () {
-
+        // priskiriu elementus (containeri, input, select, button) i ju vietas html'e
         body.appendChild(container);
         container.appendChild(input);
         container.appendChild(select);
@@ -50,6 +50,7 @@
 
         button.addEventListener('click', function(){saveData()});
 
+        // pasileidus funkcijai issaukiam duomenu parodyma, net jeigu ju ir nera
         displayData();
     }
 
@@ -61,15 +62,22 @@
         if (!task || !priority){
             alert('prasome ivesti uzduoti ir pasirinkti prioriteta');
         } else {
-             // paimu id
+             // susikuriu unikalu id naudodama JS Date metoda
             const id = Date.now();
 
             // Store them in localStorage (we store as a JSON string to handle multiple entries)
+            // pasiimam data is localStorage ir naudodami JSON.parse pasiverciam ja is string i array arba jei data dar nera-naudojam tuscia array
             let storedData = JSON.parse(localStorage.getItem('data')) || [];
+            // papildome data nauju irasu, kuri sudaro:
+            // id, kuri susigeneruojame unikalu, kad ateityje galetume ji rasti specifini be klaidu
+            // task, vartotojo irasyta tasko pavadinima (input value)
+            // priority, vartotojo pasirinkta priority (select value)
+            // completed - nustatome false, nes ka tik sukurtas task negali buti iskart padarytas, veliau reikes sekti kurie taskai padaryti, kurie ne
             storedData.push({ id: id, task: task, priority: priority, completed: false });
+            // papildyta Data objekta paverciame i stringa ir perduodam atgal JSONu i LocalStorage
             localStorage.setItem('data', JSON.stringify(storedData));
 
-            // po issaugojimo, istrinu reiksmes inputuose
+            // po issaugojimo, istrinu reiksmes inputuose (reikia istrinti, kad du kartus vartotojas neivestu to paties)
             input.value = '';
             select.value = '';
         }       
@@ -79,10 +87,10 @@
 
     // Function to create the table dynamically and display data
     function displayData() {
-        // istrinu table conteinery reiksmes
+        // istrinu table conteinerio child elementus (tam kad nedubliuoti duomenu)
         tableContainer.innerHTML = '';
 
-        // Retrieve the data from localStorage
+        // Retrieve the data from localStorage (sioje vietoje or empty array yra tam kad isvengti tam kad isvengti erroru jei nerastu data)
         const storedData = JSON.parse(localStorage.getItem('data')) || [];
 
         // sukurtas table elementas
@@ -109,12 +117,18 @@
 
         // table body
         const tbody = document.createElement('tbody');
+        // uz kiekviena irasa is localStorage kursime lenteles eilutes
+        // for loop / forEach / map - sie operatoriai kartoja uzduoti pagal duota parametra siuo atveju array turinio dydis
+        // console.log(storedData)
         storedData.forEach(function(item) {
             const row = document.createElement('tr');
             
             // prideti names ir variable 1
             const cell1 = document.createElement('td');
             const label = document.createElement('label');
+            // for atributas ant labelio priskiria ji prie inputo ir kai kuriais atvejais priskiria daugiau funkcionalumo
+            // for example - priskyrus label su for atributu inputui kurio tipas yra checkboxas, checkboxa galima pasirinkti paspaudus ant labelio, o ne ant inputo
+            // kadangi label for ir input id turi buti vienodi bei unikalus porai (negali buti vienodu poru)
             label.setAttribute('for', item.id);  // Set label for attribute
             label.textContent = item.task;
             cell1.appendChild(label);
@@ -146,13 +160,12 @@
             // Append cells to row
             row.appendChild(cell3);
             row.appendChild(cell1);
-            row.appendChild(cell2);
-            
+            row.appendChild(cell2);            
             row.appendChild(cell4);
             
-            // Apply 'completed' class if marked
+            // pakeiciam label stiliu, jei jo irasas yra completed
             if (item.completed) {
-                label.setAttribute('style', 'text-decoration-line: line-through;');;
+                label.setAttribute('style', 'text-decoration-line: line-through;');
             }
 
             tbody.appendChild(row);
@@ -166,10 +179,16 @@
 
     // Function to toggle the completion status of a task
     function toggleCompletion(id) {
+        // pasiimam duomenis is localStorage arba empty array
         let storedData = JSON.parse(localStorage.getItem('data')) || [];
+        // susirandam is gautu duomenu mums reikiama irasa(item), naudodami find funkcija, ieskome objekte item.id kurio reiksme 
+        // atititnka musu funkcijoje atitinka funkcijoje naudojamo parametro id reiksme(181eilute)
         const task = storedData.find(item => item.id === id);
+        // jeigu rado item'a
         if (task) {
+            // pakeiciam reiksme i priesinga
             task.completed = !task.completed;
+            // nusiunciam duomenis atgal
             localStorage.setItem('data', JSON.stringify(storedData));
             displayData();  // Refresh the table
         }
@@ -178,6 +197,7 @@
     // Function to remove an entry from localStorage and the table
     function removeEntry(id) {
         let storedData = JSON.parse(localStorage.getItem('data')) || [];
+        // isfiltruojam data kad pasalintu ta irasa kurio id atitinka eilute kurioje buvo paspaustas mygtukas remove
         storedData = storedData.filter(item => item.id !== id);  // Remove the entry
         localStorage.setItem('data', JSON.stringify(storedData));
         displayData();  // Refresh the table

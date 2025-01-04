@@ -20,7 +20,7 @@
 
         // uzduotis 2 - stilizuoju mygtukus ir p taga
         const buttonStyle = 'background-color: #ff3333;color: #ffffff;border: none;border-radius: 10px;padding: 10px 5px;margin: 5px; min-width: 150px; cursor:pointer;'
-        const paragraphStyle = 'display: block; width: 300px; min-height: 150px;border: 2px solid #00ff00;padding: 20px;margin: 0 0 15px 0;'
+        const paragraphStyle = 'display: block; width: 300px; min-height: 150px;border: 2px solid #00ff00;padding: 20px;margin: 0 0 15px 0;font-size: 3rem;'
 
         //uzdedu html elementui atributa ir jam priskiriu reiksme
         buttonOne.setAttribute('style', buttonStyle);
